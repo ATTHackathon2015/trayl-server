@@ -13,7 +13,8 @@
     "typescript": "^1.5.3"
   },
   "scripts": {
-    "start": "node out/babel/main.js"
+    "start": "node out/babel/main.js",
+    "postinstall": "gulp build"
   },
   "private": true
 }
