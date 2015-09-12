@@ -108,7 +108,7 @@ export default class Data {
 			return;
 		}
 		
-		this.travels.find<TravelData>({ owner: phone }, <any>{ owner: 0 }, done);
+		this.travels.find<TravelData>({ owner: phone }, <any>{ _id: 0, owner: 0 }, done);
 	}
 	
 	resolve(phone: string, data: ResolveData, done: ErrorCallback) {
