@@ -1,1 +1,3 @@
-console.log('Hello world');
+import Server from './server';
+
+(new Server(5000)).listen();
