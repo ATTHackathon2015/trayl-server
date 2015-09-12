@@ -13,6 +13,8 @@ interface TravelData {
 
 interface Item {
 	_id?: string;
+	resolved?: boolean;
+	owner?: string;
 	title: string;
 	description: string;
 	contact: string;
@@ -43,12 +45,25 @@ export default class Data {
 		});
 	}
 	
-	add(phone: string, item: Item, done: ErrorCallback) {
+	poll(done: AsyncResultCallback<Item[]>) {
 		
 	}
 	
+	add(phone: string, item: Item, done: ErrorCallback) {
+		item.owner = phone;
+		this.items.insert<Item>(item, (err: Error, document: Item) => {
+			this.users.update({ phone: phone }, {
+				$set: { phone: phone },
+				$push: { items: document._id }
+			}, { upsert: true }, done);
+		});
+	}
+	
 	travel(phone: string, data: TravelData, done: ErrorCallback) {
-		this.users.update({phone: phone}, { $set: phone, $push: { travel: data }}, { upsert: true }, done);
+		this.users.update({ phone: phone }, {
+			$set: { phone: phone },
+			$push: { travel: data }
+		}, { upsert: true }, done);
 	}
 	
 	connect(done: ErrorCallback) {

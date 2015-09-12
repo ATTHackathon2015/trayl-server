@@ -15,12 +15,28 @@ export default class Server {
 		this.app.use(bodyParser.json());
 		
 		this.addPost('travel');
+		this.addPost('add');
 		
 		this.data = new Data();
 	}
 	
 	addPost(url: string) {
 		this.app.post('/' + url, this[url].bind(this));
+	}
+	
+	add(req: Request, res: Response) {
+		this.data.add(req.body.phone, req.body.data, (error?: Error) => {
+			if (error) {
+				res.json({
+					success: false,
+					error: error
+				});
+			} else {
+				res.json({
+					success: true
+				});
+			}
+		});
 	}
 	
 	travel(req: Request, res: Response) {
