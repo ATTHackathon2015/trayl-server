@@ -9,7 +9,39 @@ export default class Server {
 	
 	data: Data;
 	
+	errorRespond: (error?: Error) => void;
+	resultRespond: (error: Error, result) => void;
+	
 	constructor(public port: number) {
+		this.errorRespond = function (error?: Error)  { // this is res: Response
+			let res = <Response>this;
+			if (error) {
+				res.json({
+					success: false,
+					error: error
+				});
+			} else {
+				res.json({
+					success: true
+				});
+			}
+		};
+		this.resultRespond = function (error: Error, result) { // this is res: Response
+			let res = <Response>this;
+			
+			if (error) {
+				res.json({
+					success: false,
+					error: error
+				});
+			} else {
+				res.json({
+					success: true,
+					data: result
+				});
+			}
+		};
+		
 		this.app = (<any>express).default();
 		
 		this.app.use(bodyParser.json());
@@ -33,36 +65,6 @@ export default class Server {
 	
 	addPost(url: string) {
 		this.app.post('/' + url, this[url].bind(this));
-	}
-	
-	errorRespond(error?: Error) { // this is res: Response
-		let res = <Response><any>this;
-		if (error) {
-			res.json({
-				success: false,
-				error: error
-			});
-		} else {
-			res.json({
-				success: true
-			});
-		}
-	}
-	
-	resultRespond(error: Error, result) { // this is res: Response
-		let res = <Response><any>this;
-		
-		if (error) {
-			res.json({
-				success: false,
-				error: error
-			});
-		} else {
-			res.json({
-				success: true,
-				data: result
-			});
-		}
 	}
 	
 	resolve(req: Request, res: Response) {
