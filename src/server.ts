@@ -14,17 +14,31 @@ export default class Server {
 		
 		this.app.use(bodyParser.json());
 		
-		this.app.post('/add', this.add.bind(this));
+		this.addPost('travel');
 		
-		this.data = new Data('data.db');
+		this.data = new Data();
 	}
 	
-	add(req: Request, res: Response) {
-		res.json({
-			success: true,
-			data: req.body
+	addPost(url: string) {
+		this.app.post('/' + url, this[url].bind(this));
+	}
+	
+	travel(req: Request, res: Response) {
+		this.data.travel(req.body.phone, req.body.data, (error?: Error) => {
+			if (error) {
+				res.json({
+					success: false,
+					error: error
+				});
+			} else {
+				res.json({
+					success: true
+				});
+			}
 		});
 	}
+	
+	
 	
 	listen() {
 		this.data.connect((error: Error) => {

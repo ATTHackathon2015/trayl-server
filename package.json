@@ -2,6 +2,7 @@
   "name": "template",
   "version": "0.0.1",
   "dependencies": {
+    "async": "^1.4.2",
     "babel": "^5.8.23",
     "body-parser": "^1.13.3",
     "del": "^1.2.0",
