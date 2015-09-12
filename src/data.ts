@@ -116,7 +116,7 @@ export default class Data {
 			return;
 		}
 		
-		this.items.update({ _id: data.id }, {
+		this.items.update({ _id: data.id, owner: phone }, {
 			$set: {
 				resolved: data.resolved
 			}

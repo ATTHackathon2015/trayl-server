@@ -68,7 +68,7 @@ export default class Server {
 	}
 	
 	resolve(req: Request, res: Response) {
-		this.data.resolve(req.body.phone, req.body.data, this.resultRespond.bind(res));
+		this.data.resolve(req.body.phone, req.body.data, this.errorRespond.bind(res));
 	}
 	
 	travels(req: Request, res: Response) {
