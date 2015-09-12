@@ -33,31 +33,26 @@ export default class Data {
 	items: NeDBDataStore;
 	
 	constructor() {
-		this.users = new NeDBDataStore('users.db');
-		this.items = new NeDBDataStore('items.db');
-	}
-	
-	travel(phone: string, data: TravelData, done: ErrorCallback) {
-		let query = {phone: phone};
-		this.users.findOne<User>(query, (err: Error, document: User) => {
-			if (err) {
-				done(err);
-				return;
-			}
-			
-			if (document) {
-				this.users.update(query, { $push: { travel: data }}, {}, done);
-			} else {
-				this.users.insert<User>({
-					phone: phone,
-					items: [],
-					travel: [data]
-				}, done);
-			}
+		this.users = new NeDBDataStore({
+			filename: 'db/users.db',
+			autoload: true
+		});
+		this.items = new NeDBDataStore({
+			filename: 'db/items.db',
+			autoload: true
 		});
 	}
 	
+	add(phone: string, item: Item, done: ErrorCallback) {
+		
+	}
+	
+	travel(phone: string, data: TravelData, done: ErrorCallback) {
+		this.users.update({phone: phone}, { $set: phone, $push: { travel: data }}, { upsert: true }, done);
+	}
+	
 	connect(done: ErrorCallback) {
-		async.parallel([this.users.loadDatabase, this.items.loadDatabase], done);
+		done();
+		// async.parallel([this.users.loadDatabase, this.items.loadDatabase], done);
 	}
 }
