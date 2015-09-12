@@ -18,7 +18,7 @@ export default class Server {
 			if (error) {
 				res.json({
 					success: false,
-					error: error
+					error: error.toString()
 				});
 			} else {
 				res.json({
@@ -32,7 +32,7 @@ export default class Server {
 			if (error) {
 				res.json({
 					success: false,
-					error: error
+					error: error.toString()
 				});
 			} else {
 				res.json({
