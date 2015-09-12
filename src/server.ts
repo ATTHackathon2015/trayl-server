@@ -1,11 +1,8 @@
 /// <reference path="reference.d.ts" />
 
 import * as express from 'express';
+import {Express, Request, Response} from 'express';
 import * as bodyParser from 'body-parser';
-
-import Express = express.Express;
-import Request = express.Request;
-import Response = express.Response;
 
 export default class Server {
 	
