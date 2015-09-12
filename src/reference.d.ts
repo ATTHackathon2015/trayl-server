@@ -1,5 +1,14 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+declare module 'js-schema' {
+    interface Validator {
+        (obj): boolean;
+        errors: (obj) => boolean | any;
+    }
+    
+    export default function schema(schema): Validator;
+}
+
 // Type definitions for NeDB
 // Project: https://github.com/louischatriot/nedb
 // Definitions by: Stefan Steinhart <https://github.com/reppners>

@@ -18,6 +18,7 @@ export default class Server {
 		this.addPost('add');
 		
 		this.addGet('poll');
+		this.app.get('/', this.poll.bind(this));
 		
 		this.data = new Data();
 	}

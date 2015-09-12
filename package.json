@@ -9,6 +9,7 @@
     "express": "^4.13.3",
     "gulp": "^3.9.0",
     "gulp-rename": "^1.2.2",
+    "js-schema": "^1.0.1",
     "lodash": "^3.10.1",
     "mkdirp": "^0.5.1",
     "nedb": "^1.1.4",
