@@ -8,6 +8,7 @@ interface Location {
 }
 
 interface TravelData {
+	owner?: string;
 	location: Location;
 	time: number;
 }
@@ -23,26 +24,25 @@ interface Item {
 	location: Location;
 }
 
-interface User {
-	_id?: string;
-	phone: string;
-	items: string[];
-	travel: TravelData[];
+interface ResolveData {
+	id: string;
+	resolved: boolean;
 }
 
 export default class Data {
 	
-	users: NeDBDataStore;
 	items: NeDBDataStore;
+	travels: NeDBDataStore;
 	
 	schemas: {
 		item: Validator;
 		travel: Validator;
+		resolve: Validator;
 	};
 	
 	constructor() {
-		this.users = new NeDBDataStore({
-			filename: 'db/users.db',
+		this.travels = new NeDBDataStore({
+			filename: 'db/travels.db',
 			autoload: true
 		});
 		this.items = new NeDBDataStore({
@@ -67,6 +67,10 @@ export default class Data {
 					lat: Number,
 					long: Number
 				}]
+			}),
+			resolve: schema({
+				id: String,
+				resolved: Boolean
 			})
 		};
 	}
@@ -75,48 +79,67 @@ export default class Data {
 		this.items.find<Item>({ resolved: false }, <any>{ resolved: 0, owner: 0 }, done);
 	}
 	
-	add(phone: string, item: Item, done: ErrorCallback) {
+	validate(phone: string, done: ErrorCallback, data?, schema?: Validator) {
 		if (typeof phone != 'string') {
 			done(new Error('phone (' + phone + ') is not a string'));
+			return true;
+		}
+		
+		if (data) {
+			let validate = schema.errors(data);
+			if (validate) {
+				done(new Error(JSON.stringify(validate)));
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	getItems(phone: string, done: AsyncResultCallback<Item[]>) {
+		if (this.validate(phone, <ErrorCallback>done)) {
 			return;
 		}
 		
-		let validate = this.schemas.item.errors(item);
-		if (validate) {
-			done(new Error(JSON.stringify(validate)));
+		this.items.find<Item>({ owner: phone }, <any>{ owner: 0 }, done);
+	}
+	
+	getTravels(phone: string, done: AsyncResultCallback<TravelData[]>) {
+		if (this.validate(phone, <ErrorCallback>done)) {
+			return;
+		}
+		
+		this.travels.find<TravelData>({ owner: phone }, <any>{ owner: 0 }, done);
+	}
+	
+	resolve(phone: string, data: ResolveData, done: ErrorCallback) {
+		if (this.validate(phone, <ErrorCallback>done, data, this.schemas.resolve)) {
+			return;
+		}
+		
+		this.items.update({ _id: data.id }, {
+			$set: {
+				resolved: data.resolved
+			}
+		}, {}, done);
+	}
+	
+	add(phone: string, item: Item, done: ErrorCallback) {
+		if (this.validate(phone, <ErrorCallback>done, item, this.schemas.item)) {
 			return;
 		}
 		
 		item.owner = phone;
 		item.resolved = false;
-		this.items.insert<Item>(item, (err: Error, document: Item) => {
-			if (err) {
-				done(err);
-				return;
-			}
-			this.users.update({ phone: phone }, {
-				$set: { phone: phone },
-				$push: { items: document._id }
-			}, { upsert: true }, done);
-		});
+		this.items.insert<Item>(item, done);
 	}
 	
 	travel(phone: string, data: TravelData, done: ErrorCallback) {
-		if (typeof phone != 'string') {
-			done(new Error('phone (' + phone + ') is not a string'));
+		if (this.validate(phone, <ErrorCallback>done, data, this.schemas.travel)) {
 			return;
 		}
 		
-		let validate = this.schemas.travel.errors(data);
-		if (validate) {
-			done(new Error(JSON.stringify(validate)));
-			return;
-		}
-		
-		this.users.update({ phone: phone }, {
-			$set: { phone: phone },
-			$push: { travel: data }
-		}, { upsert: true }, done);
+		data.owner = phone;
+		this.travels.insert<TravelData>(data, done);
 	}
 	
 	connect(done: ErrorCallback) {
