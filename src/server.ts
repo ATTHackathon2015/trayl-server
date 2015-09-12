@@ -17,11 +17,33 @@ export default class Server {
 		this.addPost('travel');
 		this.addPost('add');
 		
+		this.addGet('poll');
+		
 		this.data = new Data();
+	}
+	
+	addGet(url: string) {
+		this.app.get('/' + url, this[url].bind(this));
 	}
 	
 	addPost(url: string) {
 		this.app.post('/' + url, this[url].bind(this));
+	}
+	
+	poll(req: Request, res: Response) {
+		this.data.poll((error: Error, result) => {
+			if (error) {
+				res.json({
+					success: false,
+					error: error
+				});
+			} else {
+				res.json({
+					success: true,
+					data: result
+				});
+			}
+		});
 	}
 	
 	add(req: Request, res: Response) {

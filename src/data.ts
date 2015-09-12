@@ -13,7 +13,7 @@ interface TravelData {
 
 interface Item {
 	_id?: string;
-	resolved?: boolean;
+	resolved: boolean;
 	owner?: string;
 	title: string;
 	description: string;
@@ -46,12 +46,17 @@ export default class Data {
 	}
 	
 	poll(done: AsyncResultCallback<Item[]>) {
-		
+		this.items.find<Item>({ resolved: false }, <any>{ _id: 0, resolved: 0, owner: 0 }, done);
 	}
 	
 	add(phone: string, item: Item, done: ErrorCallback) {
 		item.owner = phone;
+		item.resolved = false;
 		this.items.insert<Item>(item, (err: Error, document: Item) => {
+			if (err) {
+				done(err);
+				return;
+			}
 			this.users.update({ phone: phone }, {
 				$set: { phone: phone },
 				$push: { items: document._id }
